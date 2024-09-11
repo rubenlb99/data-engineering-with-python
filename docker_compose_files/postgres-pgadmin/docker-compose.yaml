@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: nifi_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "8090:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin  # Volumen persistente para pgAdmin
+    depends_on:
+      - postgres
+    
+
+  nifi:
+    image: apache/nifi:latest
+    container_name: nifi
+    ports:
+      - "9300:8080"
+    environment:
+      NIFI_WEB_HTTP_PORT: 8080
+    volumes:
+      - nifi_data:/opt/nifi/nifi-current/logs
+      - ./postgresql-42.2.20.jar:/opt/nifi/nifi-current/lib/postgresql-42.2.20.jar
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  nifi_data:
+  pgadmin_data:
+
